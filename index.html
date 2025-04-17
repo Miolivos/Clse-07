@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Séptima clase</title>
+        <style>
+            [data-theme="light"] { --color-bg: #eceff1; --color-fg: #263238; }
+
+            [data-theme="dark"] { --color-bg: #263238; --color-fg: #eceff1; }
+
+            * { margin: 0; padding: 0; }
+
+            body { font-family: monospace; color: var(--color-fg); background: var(--color-bg); }
+
+            article { padding: 1rem; width: min(90%, 500px); margin: 2rem auto; text-align: center; }
+
+            article:nth-child(3) { width: min(90%, 1000px); margin-bottom: 5rem; }
+
+            h2 { font-size: 1.5rem; margin: 1.5rem auto; line-height: 1; }
+
+            p { margin: 0.75rem auto; line-height: 1.5; }
+
+            input[type="radio"] { accent-color: #232323; }
+
+            @keyframes pedrope {
+                0% { transform: rotate(0); }
+                100% { transform: rotate(360deg); }
+            }
+
+            figure { width: 50%; margin: 2rem auto; background: #fff; }
+
+            img { width: 100%; }
+
+            img.animate { animation: pedrope 2s linear infinite; }
+
+            div.portrait > svg { font-size: 7.5%; stroke-width: 0; fill: white; alignment-baseline: middle; text-anchor: start; display: block; margin:3rem; }
+
+            div.landscape { display: inline-block; }
+
+            div.landscape > svg { width: 10%; font-size: 25%; stroke-width: 0; fill: black; alignment-baseline: middle; text-anchor: middle; }
+
+            div.landscape > svg:nth-child(5) { margin-left:3%; margin-right:4%; }
+
+            div.landscape > svg:nth-child(7) { margin-left:2%; }
+
+            @media (orientation: portrait) {
+                div.landscape { display: none; }
+            }
+
+            @media (orientation: landscape) {
+                div.portrait { display: none; }
+            }
+        </style>
+    </head>
+    <body>
+        <article>
+            <h2>Del innerHTML al setAttribute</h2>
+            <!--usando input type="radio"-->
+            <p>
+                <input type="radio" name="stroke" value="0.25" onchange="primera(this.value)" /> LIGHT <input type="radio" name="stroke" value="1" checked onchange="primera(this.value)" /> NORMAL
+                <input type="radio" name="stroke" value="1.75" onchange="primera(this.value)" /> BOLD
+            </p>
+            <!--un svg que tomo de https://feathericons.com/-->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="360" height="360">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+
+
+
+            <!--usando input type="range"-->
+            <p><input type="range" min="0" max="359" step="1" value="0" onchange="segunda(this.value)" /></p>
+            <p>Stroke: HSL(<span>0</span>,100%,50%)</p>
+            <!--usando input type="color"-->
+            <p>Fill: <input type="color" value="#FFFFFF" onchange="tercera(this.value)" /></p>
+        </article>
+        <article>
+            <h2>Del setAttribute al AddClass</h2>
+            <!--usando input type="checkbox"-->
+            <input type="checkbox" name="animado" onchange="cuarta()" /> <label>ANÍMATE, PEDRO</label>
+            <figure>
+                <img src="https://raw.githubusercontent.com/profesorfaco/opr/refs/heads/main/clase-07/img/mapache.png" />
+            </figure>
+        </article>
+        <article>
+            <h2>Y cerremos con "un SVG responsive"</h2>
+            <div class="portrait"></div>
+            <div class="landscape"></div>
+        </article>
+        <script>
+            // Hay muchos tipos de inputs: https://www.w3schools.com/html/html_form_input_types.asp
+            // Acá usaremos cuatro: radio, range, color y checkbox
+
+            function primera(valor) {
+                document.querySelectorAll("svg")[0].setAttribute("stroke-width", valor);
+            }
+            primera(1);
+
+            function segunda(valor) {
+                document.querySelectorAll("svg")[0].setAttribute("stroke", "hsl(" + valor + ",100%,50%)");
+                document.querySelector("span").innerHTML = valor;
+            }
+            segunda(0);
+
+            function tercera(valor) {
+                document.querySelector("rect").setAttribute("fill", valor);
+            }
+
+            function cuarta() {
+                if (document.querySelector("input[type=checkbox]").checked == true) {
+                    document.querySelector("img").classList.add("animate");
+                } else {
+                    document.querySelector("img").removeAttribute("class");
+                    // también podría borrar la clase, dejando un class vacío
+                    // document.querySelector("img").classList.remove("animate");
+                }
+            }
+
+            async function quinta() {
+                const consulta = await fetch("https://raw.githubusercontent.com/Miolivos/DatosHojas.json/refs/heads/main/csvjson.json");
+                const data = await consulta.json();
+                console.log(data);
+                const svgMobile = document.querySelectorAll("div.portrait")[0];
+                const svgOther = document.querySelectorAll("div.landscape")[0];
+                data.forEach((v, i) => {
+                    svgMobile.innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10.0 -10.0 100.0 135.0" ${v.Comparado*2}"><text x="50%" y="80%" text-anchor="middle" font-size="8">${v.Hojas}</text></svg>`;
+                    svgOther.innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10.0 -10.0 100.0 135.0"><text x="50%" y="80%" text-anchor="middle" font-size="8" font-weight"bold">${v.Hojas}</text>
+
+
+                    <g transform="scale(${v.Comparado/2})">
+                    <path d="m57.301 3.9297c-14.25-0.61719-15.938 11.477-12.016 22.488 0.62109 1.9727 1.4141 3.8828 2.3047 5.7617-0.13281-1.2188-0.12891-2.457-0.0625-3.625 0.26562-5.4609 3.2344-11.301 8.7148-13.035 6.3867-2.0938 12.73 1.6172 17.117 6.0742-2.7422-1.3945-5.2969-3.5195-8.1719-4.7695-3.5898-1.4297-7.9531-1.4844-11.219 0.75391-5.1914 3.6523-6.5273 10.938-5.2148 16.949 1.1367 2.2031 2.3672 4.3672 3.5586 6.5312-0.14453-3.5273 1.7031-7.1094 5.2852-8.2227 5.0508-1.4375 10.273 1.0508 14.723 3.2812 2.7656 1.4648 5.3086 3.5938 6.9727 6.1953-4.9375-4.4492-10.91-8.0781-17.559-9.0117-6.2578-0.69922-9 3.9336-8.6914 9.0977 0.75391 1.3906 1.4766 2.7773 2.1406 4.1836 0.17969 0.34766 0.35547 0.69531 0.53125 1.043 0.62109-3.1172 4.2383-5.1289 7.8281-4.1562 4.4336 0.97266 7.6953 4.7031 10.25 8.1523-3.2656-2.4102-5.8242-6.043-9.8672-7.1719-3.9961-1.2266-7.1602 0.87891-7.7148 4.168 1.6953 3.457 3.2227 6.9922 4.6406 10.535 0.90625-3.3672 5.9648-3.7539 8.5859-0.69531 0.71484 0.88281 1.4844 1.9062 1.9023 2.9023-0.53906-0.64844-1.125-1.2148-1.7148-1.8047-2.7422-3.0156-7.4062-3.2617-8.4688 0.38281 2.3047 6.457 5.3477 13.129 6.0703 19.844-2.9766-6.9375-5.168-14.176-7.9805-21.18-1.2852-0.83594-2.8398-0.5625-4.4414 1.2812-1.8672 2.3516-1.918 5.5391-2.6094 8.2734-0.13672-2.9297-0.11328-6.1172 1.7422-8.5547 1.4375-1.9922 3.3711-2.6445 4.8945-2.0195-0.45703-1.1094-0.92969-2.2109-1.4297-3.3086-1.0039-2.25-2.0586-4.5039-3.1914-6.7305-0.007813-0.003907-0.011719-0.011719-0.015626-0.011719-1.8984-1.5156-4.3945 0.019531-5.6758 1.6172-3.1758 3.832-3.9219 8.9727-4.1328 13.727-0.95312-4.0859-0.14844-8.2852 1.8945-11.91 1.125-2.5742 4.5586-5.7852 7.2695-4.707-0.73438-1.3984-1.5-2.7891-2.3008-4.1484-0.23047-0.20703-0.45703-0.41406-0.6875-0.61328-10.68-8.1016-20.309 10.426-23.492 18.5 1.0586-8.9375 13.488-26.914 23.008-19.824-1-1.6055-2.0547-3.1758-3.1758-4.6992-9.4141-7.2305-21.484-4.8086-26.086 7.9375 1.6719-12.078 15.375-15.816 24.309-10.25-2.4102-2.9766-5.0938-5.7109-8.1289-8.0859-5.8555-4.4609-15.086-5.0547-20.32 0.65234-6.1094 7.207-3.2109 17.562-0.6875 25.672 2.6445 8.2812 7.332 15.934 13.922 21.652 6.3047 5.5312 13.758 9.6367 21.418 12.91 6.9688 2.9844 15.027 5.0898 20.75 10.145 0.51172-4.4922 1.9844-8.8984 3.3359-13.203 1.9492-6.1328 3.9805-12.348 6.125-18.395 2.6484-7.7266 5.3789-15.586 5.4219-23.836 0.25391-16.375-12.852-34.734-29.656-36.727z"/>
+                    </g>
+                    <text x="0.0" y="117.5" font-size="5.0" font-weight="bold" font-family="Arbeit Regular, Helvetica, Arial-Unicode, Arial, Sans-serif" fill="#000000"></text><text x="0.0" y="122.5" font-size="5.0" font-weight="bold" font-family="Arbeit Regular, Helvetica, Arial-Unicode, Arial, Sans-serif" fill="#000000"></text></svg>`;
+                });
+            }
+            quinta().catch((error) => console.error(error));
+
+            function sexta() {
+                var ancho = window.innerWidth;
+                var alto = window.innerHeight;
+                if (ancho < alto) {
+                    document.querySelector("html").setAttribute("data-theme", "dark");
+                } else {
+                    document.querySelector("html").setAttribute("data-theme", "light");
+                }
+            }
+            sexta();
+            window.addEventListener("resize", sexta);
+        </script>
+    </body>
+</html>
+
